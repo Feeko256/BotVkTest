@@ -25,8 +25,9 @@ jobs:
           Ссылка:
           ${COMMIT_URL}"
           
-          curl --fail --insecure -G \
+          curl --fail --insecure -X POST \
             "https://api.vkteams.bspb.ru/bot/v1/messages/sendText" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
             --data-urlencode "token=${BOT_TOKEN}" \
             --data-urlencode "chatId=${CHAT_ID}" \
             --data-urlencode "text=${TEXT_DATA}"
