@@ -25,10 +25,7 @@ jobs:
           Ссылка:
           ${COMMIT_URL}"
           
-          # Отправляем через GET. Токен и ChatID передаем через флаги --data-urlencode, 
-          # но принудительно заставляем curl выполнить GET-запрос с помощью флага --get
           curl --fail --insecure --get \
-            "https://api.vkteams.bspb.ru/bot/v1/messages/sendText" \
-            --data-urlencode "token=${BOT_TOKEN}" \
+            "https://api.vkteams.bspb.ru/bot/v1/messages/sendText{BOT_TOKEN}" \
             --data-urlencode "chatId=${CHAT_ID}" \
             --data-urlencode "text=${TEXT_DATA}"
