@@ -16,23 +16,22 @@ jobs:
           COMMIT_MSG: ${{ github.event.head_commit.message }}
           COMMIT_URL: ${{ github.event.head_commit.url }}
           COMMIT_AUTHOR: ${{ github.event.head_commit.author.name }}
-          # Сохраняем массивы файлов как чистый текст
-          ADDED_FILES: ${{ toJson(github.event.head_commit.added) }}
-          REMOVED_FILES: ${{ toJson(github.event.head_commit.removed) }}
-          MODIFIED_FILES: ${{ toJson(github.event.head_commit.modified) }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMMIT_SHA: ${{ github.event.head_commit.id }}
           REPO: ${{ github.repository }}
         run: |
-          # Используем безопасный синтаксис "<<<" для передачи JSON в jq
-          ADDED=$(jq -r 'if . == null or length == 0 then "нет" else join(", ") end' <<< "$ADDED_FILES")
-          REMOVED=$(jq -r 'if . == null or length == 0 then "нет" else join(", ") end' <<< "$REMOVED_FILES")
-          MODIFIED=$(jq -r 'if . == null or length == 0 then "нет" else join(", ") end' <<< "$MODIFIED_FILES")
+          # Получаем списки файлов через git diff, если файлов нет — пишем "нет"
+          ADDED=$(git diff --diff-filter=A --name-only HEAD~1 HEAD | paste -sd ", " -)
+          MODIFIED=$(git diff --diff-filter=M --name-only HEAD~1 HEAD | paste -sd ", " -)
+          REMOVED=$(git diff --diff-filter=D --name-only HEAD~1 HEAD | paste -sd ", " -)
+
+          ADDED=${ADDED:-нет}
+          MODIFIED=${MODIFIED:-нет}
+          REMOVED=${REMOVED:-нет}
           
-          # Запрашиваем статистику строк и проверяем, что ответ от API валиден
+          # Запрашиваем статистику строк через API GitHub
           STATS_RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "https://github.com")
           
-          # Проверяем, вернул ли GitHub валидный JSON со статистикой
           if echo "$STATS_RESPONSE" | jq -e '.stats' >/dev/null 2>&1; then
             LINES_ADDED=$(echo "$STATS_RESPONSE" | jq -r '.stats.additions // 0')
             LINES_DELETED=$(echo "$STATS_RESPONSE" | jq -r '.stats.deletions // 0')
@@ -41,7 +40,7 @@ jobs:
             LINES_DELETED=0
           fi
           
-          # Формируем итоговый многострочный текст
+          # Формируем итоговое сообщение
           echo "TEXT_DATA<<EOF" >> $GITHUB_ENV
           echo "💻 Новый коммит от ${COMMIT_AUTHOR}:" >> $GITHUB_ENV
           echo "${COMMIT_MSG}" >> $GITHUB_ENV
