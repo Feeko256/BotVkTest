@@ -1,16 +1,25 @@
-name: VK Teams Release Notification
+name: Notify VK Teams
+
 on:
   release:
     types: [published]
+
 jobs:
   notify:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Send Notification to VK Teams
+      - name: Send VK Teams notification
+        env:
+          VK_TEAMS_TOKEN: ${{ secrets.VK_TEAMS_TOKEN }}
+          VK_TEAMS_CHAT_ID: ${{ secrets.VK_TEAMS_CHAT_ID }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
         run: |
-          # Текст сообщения
-          MESSAGE="🚀 **Вышел новый релиз!** %0A%0A**Проект:** ${{ github.repository }} %0A**Версия:** ${{ github.event.release.tag_name }} %0A**Автор:** ${{ github.actor }} %0A%0A🔗 [Посмотреть на GitHub](${{ github.event.release.html_url }})"
-          
-          # Отправка запроса в официальное Bot API VK Teams
-          # Для on-premise версий замените домен на ваш внутренний корпоративный
-          curl -X GET "https://api.vkteams.bspb.ru/bot/v1/messages/sendText{{ secrets.VK_TEAMS_BOT_TOKEN }}&chatId=${{ secrets.VK_TEAMS_CHAT_ID }}&text=$MESSAGE&parseMode=MarkdownV2"
+          curl --fail --get \
+            "https://api.vkteams.company.ru/bot/v1/messages/sendText" \
+            --data-urlencode "token=${VK_TEAMS_BOT_TOKEN}" \
+            --data-urlencode "chatId=${VK_TEAMS_CHAT_ID}" \
+            --data-urlencode "text=Новый релиз ${RELEASE_TAG}
+
+          ${RELEASE_URL}"
