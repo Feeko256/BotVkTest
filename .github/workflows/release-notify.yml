@@ -17,7 +17,7 @@ jobs:
           RELEASE_URL: ${{ github.event.release.html_url }}
         run: |
           curl --fail --get \
-            "https://api.vkteams.company.ru/bot/v1/messages/sendText" \
+            "https://api.vkteams.bspb.ru/bot/v1/messages/sendText" \
             --data-urlencode "token=${VK_TEAMS_BOT_TOKEN}" \
             --data-urlencode "chatId=${VK_TEAMS_CHAT_ID}" \
             --data-urlencode "text=Новый релиз ${RELEASE_TAG}
