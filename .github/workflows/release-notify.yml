@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Prepare Message Text
         id: msg
         env:
@@ -30,7 +34,10 @@ jobs:
           REMOVED=${REMOVED:-нет}
           
           # Запрашиваем статистику строк через API GitHub
-          STATS_RESPONSE=$(curl -s -H "Authorization: Bearer $GH_TOKEN" "https://github.com")
+          STATS_RESPONSE=$(curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$REPO/commits/$COMMIT_SHA")
           
           if echo "$STATS_RESPONSE" | jq -e '.stats' >/dev/null 2>&1; then
             LINES_ADDED=$(echo "$STATS_RESPONSE" | jq -r '.stats.additions // 0')
