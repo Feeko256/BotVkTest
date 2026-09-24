@@ -25,7 +25,7 @@ jobs:
           Ссылка:
           ${COMMIT_URL}"
           
-          curl --fail --insecure -X POST \
+          curl --silent --show-error --insecure --max-time 15 -G -X POST \
             "https://api.vkteams.bspb.ru/bot/v1/messages/sendText" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             --data-urlencode "token=${BOT_TOKEN}" \
