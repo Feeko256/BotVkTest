@@ -21,6 +21,6 @@ jobs:
         run: |
           curl --fail --insecure --get \
             "https://api.vkteams.bspb.ru/bot/v1/messages/sendText" \
-            --data-urlencode "token=${VK_TEAMS_TOKEN}" \
+            --data-urlencode "token=${VK_TEAMS_BOT_TOKEN}" \
             --data-urlencode "chatId=${VK_TEAMS_CHAT_ID}" \
             --data-urlencode "text=Новый коммит от ${COMMIT_AUTHOR}:%0A${COMMIT_MSG}%0A%0AСсылка:%0A${COMMIT_URL}"
