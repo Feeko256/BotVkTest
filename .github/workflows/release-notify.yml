@@ -11,15 +11,14 @@ jobs:
     steps:
       - name: Send VK Teams notification
         env:
-          VK_TEAMS_TOKEN: ${{ secrets.VK_TEAMS_TOKEN }}
+          # Заменяем название секрета на то, что задано в настройках репозитория
+          VK_TEAMS_TOKEN: ${{ secrets.VK_TEAMS_BOT_TOKEN }}
           VK_TEAMS_CHAT_ID: ${{ secrets.VK_TEAMS_CHAT_ID }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_URL: ${{ github.event.release.html_url }}
         run: |
           curl --fail --get \
             "https://api.vkteams.bspb.ru/bot/v1/messages/sendText" \
-            --data-urlencode "token=${VK_TEAMS_BOT_TOKEN}" \
+            --data-urlencode "token=${VK_TEAMS_TOKEN}" \
             --data-urlencode "chatId=${VK_TEAMS_CHAT_ID}" \
-            --data-urlencode "text=Новый релиз ${RELEASE_TAG}
-
-          ${RELEASE_URL}"
+            --data-urlencode "text=Новый релиз ${RELEASE_TAG}%0A%0A${RELEASE_URL}"
