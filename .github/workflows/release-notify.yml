@@ -13,4 +13,4 @@ jobs:
           
           # Отправка запроса в официальное Bot API VK Teams
           # Для on-premise версий замените домен на ваш внутренний корпоративный
-          curl -X GET "https://mail.ru{{ secrets.VK_TEAMS_BOT_TOKEN }}&chatId=${{ secrets.VK_TEAMS_CHAT_ID }}&text=$MESSAGE&parseMode=MarkdownV2"
+          curl -X GET "https://api.vkteams.bspb.ru/bot/v1/messages/sendText{{ secrets.VK_TEAMS_BOT_TOKEN }}&chatId=${{ secrets.VK_TEAMS_CHAT_ID }}&text=$MESSAGE&parseMode=MarkdownV2"
