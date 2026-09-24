@@ -1,0 +1,16 @@
+name: VK Teams Release Notification
+on:
+  release:
+    types: [published]
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification to VK Teams
+        run: |
+          # Текст сообщения
+          MESSAGE="🚀 **Вышел новый релиз!** %0A%0A**Проект:** ${{ github.repository }} %0A**Версия:** ${{ github.event.release.tag_name }} %0A**Автор:** ${{ github.actor }} %0A%0A🔗 [Посмотреть на GitHub](${{ github.event.release.html_url }})"
+          
+          # Отправка запроса в официальное Bot API VK Teams
+          # Для on-premise версий замените домен на ваш внутренний корпоративный
+          curl -X GET "https://mail.ru{{ secrets.VK_TEAMS_BOT_TOKEN }}&chatId=${{ secrets.VK_TEAMS_CHAT_ID }}&text=$MESSAGE&parseMode=MarkdownV2"
