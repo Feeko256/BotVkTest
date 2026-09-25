@@ -54,7 +54,7 @@ jobs:
           CHAT_ID: ${{ secrets.VK_TEAMS_CHAT_ID }}
         run: >
           curl --silent --show-error --insecure --max-time 15 -G -X POST
-          "https://api.vkteams..ru/bot/v1/messages/sendText"
+          "https://api.vkteams.bspb.ru/bot/v1/messages/sendText"
           --data-urlencode "token=${BOT_TOKEN}"
           --data-urlencode "chatId=${CHAT_ID}"
           --data-urlencode "text=${{ env.TEXT_DATA }}"
