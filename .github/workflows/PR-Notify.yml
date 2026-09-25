@@ -1,0 +1,60 @@
+name: Notify VK Teams — PR
+
+on:
+  pull_request:
+    types: [opened, reopened, closed]
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare message
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_ACTION: ${{ github.event.action }}
+          PR_MERGED: ${{ github.event.pull_request.merged }}
+          PR_FROM: ${{ github.event.pull_request.head.ref }}
+          PR_TO: ${{ github.event.pull_request.base.ref }}
+        run: |
+          case "$PR_ACTION" in
+            opened)   HEADER="🆕 Открыт pull request" ;;
+            reopened) HEADER="♻️ Переоткрыт pull request" ;;
+            closed)
+              if [ "$PR_MERGED" = "true" ]; then
+                HEADER="✅ Pull request влит"
+              else
+                HEADER="❌ Pull request закрыт без merge"
+              fi
+              ;;
+            *) HEADER="📬 Pull request: $PR_ACTION" ;;
+          esac
+
+          {
+            echo "TEXT_DATA<<EOF"
+            echo "$HEADER"
+            echo ""
+            echo "📌 ${PR_TITLE}"
+            echo "👤 Автор: ${PR_AUTHOR}"
+            echo "🌿 ${PR_FROM} → ${PR_TO}"
+            echo ""
+            echo "Ссылка:"
+            echo "${PR_URL}"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Send VK Teams notification
+        env:
+          BOT_TOKEN: ${{ secrets.VK_TEAMS_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.VK_TEAMS_CHAT_ID }}
+        run: >
+          curl --silent --show-error --insecure --max-time 15 -G -X POST
+          "https://api.vkteams..ru/bot/v1/messages/sendText"
+          --data-urlencode "token=${BOT_TOKEN}"
+          --data-urlencode "chatId=${CHAT_ID}"
+          --data-urlencode "text=${{ env.TEXT_DATA }}"
