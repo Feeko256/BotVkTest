@@ -1,4 +1,4 @@
-name: Notify VK Teams — Release
+name: Notify VK Teams - Release
 
 on:
   release:
