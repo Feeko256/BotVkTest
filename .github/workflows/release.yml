@@ -1,0 +1,55 @@
+name: Notify VK Teams — Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare message
+        env:
+          REL_NAME: ${{ github.event.release.name }}
+          REL_TAG: ${{ github.event.release.tag_name }}
+          REL_URL: ${{ github.event.release.html_url }}
+          REL_AUTHOR: ${{ github.event.release.author.login }}
+          REL_BODY: ${{ github.event.release.body }}
+          REL_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [ "$REL_PRERELEASE" = "true" ]; then
+            HEADER="🧪 Pre-release"
+          else
+            HEADER="🚀 Новый релиз"
+          fi
+
+          BODY_TRUNC=$(printf '%s' "$REL_BODY" | head -c 3000)
+
+          {
+            echo "TEXT_DATA<<EOF"
+            echo "$HEADER"
+            echo ""
+            echo "📦 ${REL_NAME:-$REL_TAG}"
+            echo "🏷 Тег: ${REL_TAG}"
+            echo "👤 Автор: ${REL_AUTHOR}"
+            echo ""
+            echo "${BODY_TRUNC}"
+            echo ""
+            echo "Ссылка:"
+            echo "${REL_URL}"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Send VK Teams notification
+        env:
+          BOT_TOKEN: ${{ secrets.VK_TEAMS_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.VK_TEAMS_CHAT_ID }}
+        run: >
+          curl --silent --show-error --insecure --max-time 15 -G -X POST
+          "https://api.vkteams.bspb.ru/bot/v1/messages/sendText"
+          --data-urlencode "token=${BOT_TOKEN}"
+          --data-urlencode "chatId=${CHAT_ID}"
+          --data-urlencode "text=${{ env.TEXT_DATA }}"
