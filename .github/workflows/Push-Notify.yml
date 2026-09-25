@@ -24,7 +24,6 @@ jobs:
           COMMIT_SHA: ${{ github.event.head_commit.id }}
           REPO: ${{ github.repository }}
         run: |
-          # Получаем списки файлов через git diff, если файлов нет — пишем "нет"
           ADDED=$(git diff --diff-filter=A --name-only HEAD~1 HEAD | paste -sd ", " -)
           MODIFIED=$(git diff --diff-filter=M --name-only HEAD~1 HEAD | paste -sd ", " -)
           REMOVED=$(git diff --diff-filter=D --name-only HEAD~1 HEAD | paste -sd ", " -)
@@ -33,7 +32,6 @@ jobs:
           MODIFIED=${MODIFIED:-нет}
           REMOVED=${REMOVED:-нет}
           
-          # Запрашиваем статистику строк через API GitHub
           STATS_RESPONSE=$(curl -s \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
@@ -47,7 +45,6 @@ jobs:
             LINES_DELETED=0
           fi
           
-          # Формируем итоговое сообщение
           echo "TEXT_DATA<<EOF" >> $GITHUB_ENV
           echo "💻 Новый коммит от ${COMMIT_AUTHOR}:" >> $GITHUB_ENV
           echo "${COMMIT_MSG}" >> $GITHUB_ENV
