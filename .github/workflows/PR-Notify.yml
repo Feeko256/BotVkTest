@@ -1,4 +1,4 @@
-name: Notify VK Teams — PR
+name: Notify VK Teams - PR
 
 on:
   pull_request:
